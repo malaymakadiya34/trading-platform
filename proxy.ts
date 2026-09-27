@@ -14,5 +14,17 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/profile/:path*", "/settings/:path*"],
+  matcher: [
+    "/dashboard/:path*",
+    "/profile/:path*",
+    "/settings/:path*",
+    "/market-movement/:path*",
+    "/sector-heatmap/:path*",
+    "/index-mover/:path*",
+    "/global-markets/:path*",
+    "/btst-scanner/:path*",
+    "/intraday-boosters/:path*",
+    "/breakout-15m/:path*",
+    "/fii-dii/:path*",
+  ],
 };
