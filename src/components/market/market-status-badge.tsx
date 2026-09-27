@@ -1,5 +1,6 @@
 import type { FreshnessState } from "@/src/server/market-data/freshness";
 import type { IndiaSessionState } from "@/src/server/market-session/service";
+import type { RealtimeFreshness } from "@/src/domain/realtime/protocol.mjs";
 
 type MarketStatus = IndiaSessionState | "UNKNOWN";
 type DataSource = "DEMO" | "DELAYED" | "LIVE" | "MOCK" | "NOT_CONFIGURED";
@@ -62,6 +63,17 @@ export function FreshnessBadge({ freshness }: { freshness: FreshnessState }) {
 
 export function DataSourceBadge({ source }: { source: DataSource }) {
   return <Badge className={sourceStyles[source]}>{source}</Badge>;
+}
+
+const realtimeStyles: Record<RealtimeFreshness, string> = {
+  LIVE: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
+  STALE: "border-amber-500/30 bg-amber-500/10 text-amber-200",
+  DELAYED: "border-orange-500/30 bg-orange-500/10 text-orange-200",
+  UNAVAILABLE: "border-slate-700 bg-slate-800/80 text-slate-500",
+  MARKET_CLOSED: "border-slate-700 bg-slate-800/80 text-slate-400",
+};
+export function RealtimeFreshnessBadge({ freshness }: { freshness: RealtimeFreshness }) {
+  return <Badge className={realtimeStyles[freshness]}>{freshness.replace("_", " ")}</Badge>;
 }
 
 export type { DataSource, MarketStatus };

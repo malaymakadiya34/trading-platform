@@ -35,11 +35,39 @@ export type Quote = {
   lastPrice: number;
   change?: number;
   changePct?: number;
+  open?: number;
+  high?: number;
+  low?: number;
+  close?: number;
   volume?: number;
   openInterest?: number;
+  openInterestChange?: number;
+  bid?: number;
+  ask?: number;
+  impliedVolatility?: number;
   asOf: Date;
   source: string;
   isDelayed: boolean;
+};
+
+export type InstitutionalActivityRecord = {
+  tradingDate: string;
+  fiiBuy: number;
+  fiiSell: number;
+  fiiNet: number;
+  inMarket: number;
+  diiNet: number;
+  diiBuy: number;
+  diiSell: number;
+  asOf: Date;
+  source: string;
+};
+
+export type ProviderMarketStatus = {
+  exchange: string;
+  state: "PRE_MARKET" | "OPEN" | "CLOSED" | "WEEKEND" | "HOLIDAY";
+  asOf: Date;
+  source: string;
 };
 
 export type HistoricalCandle = {

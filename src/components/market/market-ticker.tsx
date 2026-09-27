@@ -1,3 +1,6 @@
+"use client";
+import { useEffect, useState } from "react";
+import type { RealtimeEvent } from "@/src/domain/realtime/protocol.mjs";
 import type { FreshnessState } from "@/src/server/market-data/freshness";
 
 import {
@@ -20,6 +23,7 @@ export type MarketTickerItemData = {
   marketStatus: MarketStatus;
   freshness: FreshnessState;
   source: DataSource;
+  asOf?: string;
 };
 
 type MarketTickerProps = {
@@ -63,13 +67,60 @@ export function TickerItem({ item }: { item: MarketTickerItemData }) {
           <MarketStatusBadge status={item.marketStatus} />
           <FreshnessBadge freshness={item.freshness} />
         </div>
+        {item.asOf ? (
+          <p className="mt-1 text-[9px] text-slate-600">
+            {new Date(item.asOf).toLocaleTimeString("en-IN")}
+          </p>
+        ) : null}
       </div>
     </article>
   );
 }
 
 export function MarketTicker({ description, items, label }: MarketTickerProps) {
-  if (items.length === 0) return <TickerPlaceholder label={label} />;
+  const [displayItems, setDisplayItems] = useState(items);
+  useEffect(() => {
+    const update = (raw: Event) => {
+      const event = (raw as CustomEvent<RealtimeEvent<Record<string, unknown>>>).detail;
+      if (event.type !== "quote.updated" || event.source === "MOCK") return;
+      const payload = event.payload;
+      const symbol = String(payload.normalizedSymbol ?? payload.symbol ?? "")
+        .replace(/[^A-Z0-9]/gi, "")
+        .toUpperCase();
+      const price = Number(payload.price);
+      if (!symbol || !Number.isFinite(price)) return;
+      setDisplayItems((current) =>
+        current.map((item) => {
+          const itemSymbol = item.name.replace(/[^A-Z0-9]/gi, "").toUpperCase();
+          if (itemSymbol !== symbol) return item;
+          const change = Number(payload.change ?? 0);
+          const changePct = Number(payload.changePct ?? 0);
+          return {
+            ...item,
+            value: price,
+            absoluteChange: Number.isFinite(change) ? change : 0,
+            percentageChange: Number.isFinite(changePct) ? changePct : 0,
+            positive: change >= 0,
+            source: event.freshness === "DELAYED" ? "DELAYED" : "LIVE",
+            freshness:
+              event.freshness === "LIVE"
+                ? "FRESH"
+                : event.freshness === "STALE" || event.freshness === "DELAYED"
+                  ? "STALE"
+                  : "UNKNOWN",
+            asOf: event.timestamp,
+          };
+        }),
+      );
+    };
+    window.addEventListener("realtime:index", update);
+    window.addEventListener("realtime:market", update);
+    return () => {
+      window.removeEventListener("realtime:index", update);
+      window.removeEventListener("realtime:market", update);
+    };
+  }, []);
+  if (displayItems.length === 0) return <TickerPlaceholder label={label} />;
 
   return (
     <section aria-label={`${label} ticker`} className="border-b border-slate-800/80 bg-[#0a1422]">
@@ -82,7 +133,7 @@ export function MarketTicker({ description, items, label }: MarketTickerProps) {
         </div>
         <div className="min-w-0 flex-1 overflow-x-auto" role="region" tabIndex={0}>
           <div className="flex min-w-max divide-x divide-slate-800/80">
-            {items.map((item) => (
+            {displayItems.map((item) => (
               <TickerItem item={item} key={item.id} />
             ))}
           </div>
