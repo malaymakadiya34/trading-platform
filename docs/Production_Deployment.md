@@ -8,12 +8,12 @@ The adapter must support quotes/batch quotes, historical candles, option chains,
 
 Required provider configuration:
 
-- `MARKET_DATA_PROVIDER`: approved adapter identifier
-- `MARKET_DATA_API_URL`: licensed provider endpoint
-- `MARKET_DATA_API_KEY`: server-only API key
-- `MARKET_DATA_API_SECRET`: server-only secret when required
+- `MARKET_DATA_PROVIDER=upstox`: activates the one canonical future Upstox adapter
+- `UPSTOX_ANALYTICS_TOKEN`: server-only, read-only Analytics Token
 
-No vendor is selected automatically. Never prefix credentials with `NEXT_PUBLIC_`.
+No provider is selected automatically. Never prefix the token with `NEXT_PUBLIC_`, return it from an API, log it, or persist it. The Upstox adapter isolates REST/feed payloads behind `MarketDataProvider`, loads actual NSE/BSE instrument files, and has a feed-transport boundary for the authorized V3 WebSocket/protobuf client. Live activation still requires the account entitlement, secure token, and validation of the feed transport against the active Upstox API.
+
+For offline development only, `MARKET_DATA_PROVIDER=development` and `DEVELOPMENT_DATASET_PATH` may point to a locally supplied canonical JSON dataset whose provenance and usage permission have been reviewed. This provider is prohibited in production, performs no network access, labels every record `DEVELOPMENT_DATA`, reports the market closed, and cannot stream. The repository does not scrape NSE pages, download NSE data automatically, or depend on free/research-only data for production.
 
 ## Required environment
 

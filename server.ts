@@ -5,6 +5,8 @@ import { WebSocketServer, WebSocket } from "ws";
 import { SESSION_COOKIE } from "@/src/server/auth/constants";
 import { authenticateSessionToken } from "@/src/server/auth/session-token";
 import { realtimeHub } from "@/src/server/realtime/hub";
+import { createConfiguredMarketDataProvider } from "@/src/server/market-data/config";
+import { registerMarketDataProvider } from "@/src/server/market-data/provider";
 function cookieValue(header: string | undefined, name: string) {
   for (const entry of header?.split(";") ?? []) {
     const [key, ...value] = entry.trim().split("=");
@@ -16,6 +18,8 @@ async function main() {
   const dev = process.env.NODE_ENV !== "production";
   const hostname = process.env.HOSTNAME ?? "0.0.0.0";
   const port = Number(process.env.PORT ?? 3000);
+  const provider = await createConfiguredMarketDataProvider();
+  if (provider) registerMarketDataProvider(provider);
   const app = next({ dev, hostname, port });
   const handle = app.getRequestHandler();
   await app.prepare();

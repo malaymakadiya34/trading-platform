@@ -32,6 +32,9 @@ export const providerQuoteSchema = z
     ask: finite.nonnegative().optional(),
     impliedVolatility: finite.nonnegative().optional(),
     source: z.string().trim().min(1),
+    status: z
+      .enum(["LIVE", "DELAYED", "STALE", "UNAVAILABLE", "MARKET_CLOSED", "DEVELOPMENT_DATA"])
+      .optional(),
     marketStatus: z.enum(["PRE_MARKET", "OPEN", "CLOSED", "WEEKEND", "HOLIDAY"]).optional(),
     isDelayed: z.boolean().default(false),
   })
@@ -52,6 +55,7 @@ export function normalizeProviderTick(input: unknown, receivedAt = new Date()): 
   const value = providerQuoteSchema.parse(input);
   return {
     ...value,
+    status: value.status ?? (value.isDelayed ? "DELAYED" : "LIVE"),
     symbol: value.symbol.trim(),
     normalizedSymbol: normalizeSymbol(value.symbol),
     exchange: value.exchange.trim().toUpperCase(),

@@ -67,7 +67,7 @@ test("deployment documentation lists provider, Redis, migrations, health and no-
   const docs = await read("docs/Production_Deployment.md");
   for (const phrase of [
     "No licensed market-data vendor",
-    "MARKET_DATA_API_KEY",
+    "UPSTOX_ANALYTICS_TOKEN",
     "REDIS_URL",
     "prisma migrate deploy",
     "/api/realtime",

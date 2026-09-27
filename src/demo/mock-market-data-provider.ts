@@ -81,7 +81,13 @@ export class MockMarketDataProvider implements MarketDataProvider {
   }
   async getMarketStatus(exchange: string): Promise<ProviderMarketStatus> {
     this.ready();
-    return { exchange, state: "CLOSED", asOf: new Date(), source: "MOCK" };
+    return {
+      exchange,
+      state: "CLOSED",
+      asOf: new Date(),
+      source: "MOCK",
+      status: "DEVELOPMENT_DATA",
+    };
   }
   async subscribe() {
     this.ready();

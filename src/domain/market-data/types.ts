@@ -2,6 +2,8 @@ export type InstrumentKind = "STOCK" | "INDEX" | "SECTOR";
 export type ContractKind = "FUTURE" | "OPTION";
 export type OptionType = "CE" | "PE";
 export type CandleTimeframe = "1m" | "5m" | "15m" | "1d";
+export type MarketDataStatus =
+  "LIVE" | "DELAYED" | "STALE" | "UNAVAILABLE" | "MARKET_CLOSED" | "DEVELOPMENT_DATA";
 
 export type InstrumentDescriptor = {
   exchange: string;
@@ -48,6 +50,7 @@ export type Quote = {
   asOf: Date;
   source: string;
   isDelayed: boolean;
+  status: MarketDataStatus;
 };
 
 export type InstitutionalActivityRecord = {
@@ -61,6 +64,7 @@ export type InstitutionalActivityRecord = {
   diiSell: number;
   asOf: Date;
   source: string;
+  status: MarketDataStatus;
 };
 
 export type ProviderMarketStatus = {
@@ -68,6 +72,7 @@ export type ProviderMarketStatus = {
   state: "PRE_MARKET" | "OPEN" | "CLOSED" | "WEEKEND" | "HOLIDAY";
   asOf: Date;
   source: string;
+  status: MarketDataStatus;
 };
 
 export type HistoricalCandle = {
@@ -82,6 +87,7 @@ export type HistoricalCandle = {
   volume?: number;
   openInterest?: number;
   source: string;
+  status: MarketDataStatus;
 };
 
 export type OptionChain = {
@@ -91,6 +97,7 @@ export type OptionChain = {
   contracts: ContractDescriptor[];
   source: string;
   isDelayed: boolean;
+  status: MarketDataStatus;
 };
 
 export type InstrumentMaster = {
@@ -98,4 +105,5 @@ export type InstrumentMaster = {
   contracts: ContractDescriptor[];
   asOf: Date;
   source: string;
+  status: MarketDataStatus;
 };
