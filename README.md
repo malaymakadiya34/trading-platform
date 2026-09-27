@@ -1,36 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Trading Platform
 
-## Getting Started
+A production-oriented market intelligence and F&O analytics platform for Indian markets. The application is being built in controlled phases from the Version 1.2 product specification.
 
-First, run the development server:
+## Phase 1 status
+
+The current phase establishes the Next.js application foundation only:
+
+- Next.js App Router with strict TypeScript
+- Tailwind CSS v4 and a dark trading-terminal shell
+- ESLint and Prettier
+- PostgreSQL/Prisma connection boundary and health checks
+- No live market-data provider
+- No fabricated market data or scanner signals
+- No scanner business logic or production domain tables yet
+
+## Getting started
+
+Requirements: Node.js and npm.
+
+```bash
+npm install
+cp .env.example .env.local
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000).
+
+`DATABASE_URL` is required only when using the database health endpoint:
+
+- `/api/health` checks the web service
+- `/api/health/db` checks PostgreSQL through Prisma
+
+The database endpoint returns `503` until a reachable PostgreSQL instance is configured. No database is created or mutated by the health check.
+
+## Authentication foundation
+
+Authentication uses server-side bcrypt password hashing and opaque, database-backed sessions. The session token is stored only in an HTTP-only, same-site cookie; only its SHA-256 hash is persisted in PostgreSQL. Passwords and hashes are never returned to the browser.
+
+Available flows:
+
+- `/register` creates a user with the default `USER` role.
+- `/login` creates a revocable session.
+- `/dashboard` and `/profile` are protected by the Next.js `proxy.ts` gate and server-side session validation.
+- `/api/auth/logout` revokes the current session.
+- `/profile` provides basic timezone, theme and display-name settings.
+- `ADMIN` and `USER` roles are present in the Prisma schema for future authorization rules.
+
+Password reset storage has a server-only boundary and single-use token model. Email delivery and the reset-consume endpoint are intentionally deferred until an external email provider is selected; no fake reset email is sent.
+
+Apply the migration in a configured development database with:
+
+```bash
+npx prisma migrate deploy
+```
+
+## Commands
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run lint
+npm run typecheck
+npm run format:check
+npm run test
+npm run build
+npm run db:generate
+npm run db:validate
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Architecture direction
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+The web application remains the frontend boundary. The specification calls for a separate Node.js/NestJS API/services boundary, PostgreSQL with Prisma, and a server-side realtime gateway. Those services and market-data adapters will be introduced in later approved phases.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Market data must be supplied through a replaceable provider adapter. Development mock mode, if needed later, will remain explicitly separate from licensed production data. Scanner calculations will remain outside React components and will be implemented independently in later phases.
 
-## Learn More
+## Repository guide
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```text
+app/          Next.js routes, layouts, error/loading states and health endpoints
+src/components/Reusable UI and application-shell components
+src/lib/       Shared utilities and environment boundaries
+src/server/    Server-only services, including the Prisma boundary
+prisma/        Prisma schema and future migrations
+docs/          Product requirements and developer handoff
+public/        Static assets
+```
