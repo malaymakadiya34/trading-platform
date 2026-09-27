@@ -73,6 +73,25 @@ The web application remains the frontend boundary. The specification calls for a
 
 Market data must be supplied through a replaceable provider adapter. Development mock mode, if needed later, will remain explicitly separate from licensed production data. Scanner calculations will remain outside React components and will be implemented independently in later phases.
 
+## Phase 3 data foundation
+
+Phase 3 adds the backend/data contracts without connecting a live provider or inventing market data:
+
+- normalized exchanges, instruments, memberships and dynamic derivative contracts
+- quote and historical-candle contracts with explicit source/freshness fields
+- India market-session state and database-backed holiday-calendar boundary
+- replaceable market-data provider interface
+- retry and provider-not-configured boundaries
+- instrument, session and readiness API foundations
+
+Option strikes are represented by the actual contract records and are not generated from hard-coded intervals. Provider-specific response shapes remain behind the adapter boundary.
+
+The Phase 3 Prisma migration is applied with the existing migration workflow:
+
+```bash
+npx prisma migrate deploy
+```
+
 ## Repository guide
 
 ```text
