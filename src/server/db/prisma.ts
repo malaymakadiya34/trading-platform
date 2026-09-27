@@ -9,6 +9,15 @@ type UserRecord = {
 };
 
 type PrismaClientLike = {
+  exchange: {
+    findUnique(args: { where: { code: string }; select?: unknown }): Promise<unknown>;
+  };
+  instrument: {
+    findMany(args: { where?: unknown; select?: unknown; take?: number }): Promise<unknown[]>;
+  };
+  marketHoliday: {
+    findMany(args: { where: unknown; select: unknown }): Promise<Array<{ tradingDate: Date }>>;
+  };
   user: {
     findUnique(args: {
       where: { email: string } | { id: string };
