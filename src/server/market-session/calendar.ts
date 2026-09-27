@@ -20,6 +20,8 @@ export async function loadExchangeHolidayCalendar(
   });
 
   return createHolidayCalendar(
-    holidays.map(({ tradingDate }) => tradingDate.toISOString().slice(0, 10)),
+    holidays.map(({ tradingDate }: { tradingDate: Date }) =>
+      tradingDate.toISOString().slice(0, 10),
+    ),
   );
 }
