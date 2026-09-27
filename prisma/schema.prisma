@@ -217,6 +217,25 @@ model HistoricalCandle {
   @@map("historical_candles")
 }
 
+model InstitutionalActivity {
+  id          String   @id @default(cuid())
+  tradingDate DateTime @unique @map("trading_date") @db.Date
+  fiiBuy      Decimal  @map("fii_buy") @db.Decimal(24, 4)
+  fiiSell     Decimal  @map("fii_sell") @db.Decimal(24, 4)
+  fiiNet      Decimal  @map("fii_net") @db.Decimal(24, 4)
+  inMarket    Decimal  @map("in_market") @db.Decimal(24, 4)
+  diiNet      Decimal  @map("dii_net") @db.Decimal(24, 4)
+  diiBuy      Decimal  @map("dii_buy") @db.Decimal(24, 4)
+  diiSell     Decimal  @map("dii_sell") @db.Decimal(24, 4)
+  source      String
+  asOf        DateTime @map("as_of")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([tradingDate])
+  @@map("institutional_activity")
+}
+
 model MarketHoliday {
   id          String       @id @default(cuid())
   exchangeId  String       @map("exchange_id")

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getBtstScanner } from "@/src/server/scanners/btst-scanner-repository";
 import {
   getBreakoutScanner,
   getIntradayBoosters,
@@ -9,6 +10,7 @@ export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const scanner = params.get("scanner");
   try {
+    if (scanner === "btst") return NextResponse.json(await getBtstScanner());
     if (scanner === "boosters") {
       const threshold = Number(params.get("threshold") ?? 3);
       if (![3, 4, 5].includes(threshold))
