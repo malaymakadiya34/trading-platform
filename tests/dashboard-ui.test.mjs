@@ -35,16 +35,15 @@ test("Phase 4 navigation exposes the approved module boundaries", async () => {
   }
 });
 
-test("future module boundaries do not add scanner calculations or a websocket", async () => {
+test("module boundaries keep realtime transport out of server presentation components", async () => {
   const boundaries = await Promise.all([
-    read("src/components/dashboard/future-module-boundary.tsx"),
     read("src/components/market/index-mover-boundary.tsx"),
     read("src/components/market/global-markets-boundary.tsx"),
   ]);
 
   const source = boundaries.join("\n");
   assert.doesNotMatch(source, /WebSocket|Socket\.IO|subscribe\(/);
-  assert.match(source, /No module data is available/);
   assert.match(source, /No index contribution data/);
-  assert.match(source, /development fixtures/);
+  assert.match(source, /normalized instrument master/);
+  assert.doesNotMatch(source, /mockGlobalTickerItems/);
 });

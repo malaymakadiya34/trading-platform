@@ -96,6 +96,12 @@ export function rankSectors(items) {
   });
 }
 
+export function indexPointContribution(indexValue, weightPct, stockChangePct) {
+  if (![indexValue, weightPct, stockChangePct].every(finite) || indexValue <= 0 || weightPct < 0)
+    return null;
+  return indexValue * (weightPct / 100) * (stockChangePct / 100);
+}
+
 export function rankStocks(items) {
   return [...items].sort((a, b) => {
     const aStrength = finite(a.relativeStrength) ? a.relativeStrength : a.changePct;

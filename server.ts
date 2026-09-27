@@ -28,6 +28,13 @@ async function main() {
         socket.destroy();
         return;
       }
+      const configuredOrigin = process.env.APP_URL ? new URL(process.env.APP_URL).origin : null;
+      const requestOrigin = request.headers.origin;
+      if (configuredOrigin && requestOrigin && requestOrigin !== configuredOrigin) {
+        socket.write("HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n");
+        socket.destroy();
+        return;
+      }
       const token = cookieValue(request.headers.cookie, SESSION_COOKIE);
       const user = token ? await authenticateSessionToken(token) : null;
       if (!user) {
@@ -49,6 +56,10 @@ async function main() {
       userId,
       isAlive: true,
       send: (data: string) => {
+        if (websocket.bufferedAmount > 1_000_000) {
+          websocket.close(4002, "Realtime backpressure limit exceeded");
+          return;
+        }
         if (websocket.readyState === WebSocket.OPEN) websocket.send(data);
       },
       close: (code: number, reason: string) => websocket.close(code, reason),

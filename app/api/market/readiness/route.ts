@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { authorizeApiRequest } from "@/src/server/auth/api-guard";
 
 import {
   getMarketDataProvider,
@@ -9,6 +10,9 @@ import { getPrismaClient } from "@/src/server/db/prisma";
 export const runtime = "nodejs";
 
 export async function GET() {
+  const authorization = await authorizeApiRequest();
+  if (!authorization.ok)
+    return NextResponse.json({ error: authorization.error }, { status: authorization.status });
   let database: "ready" | "unavailable" = "ready";
   let provider: "configured" | "not_configured" = "configured";
 
@@ -26,13 +30,14 @@ export async function GET() {
     else provider = "not_configured";
   }
 
-  const ready = database === "ready";
+  const ready = database === "ready" && provider === "configured";
   return NextResponse.json(
     {
       status: ready ? "ready" : "degraded",
       database,
       provider,
-      liveData: false,
+      redis: process.env.REDIS_URL ? "configured" : "optional_not_configured",
+      liveData: provider === "configured",
       timestamp: new Date().toISOString(),
     },
     { status: ready ? 200 : 503 },

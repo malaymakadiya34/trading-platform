@@ -15,11 +15,11 @@ import { TickerPlaceholder } from "@/src/components/market/ticker-placeholder";
 export type MarketTickerItemData = {
   id: string;
   name: string;
-  value: number;
-  absoluteChange: number;
-  percentageChange: number;
+  value: number | null;
+  absoluteChange: number | null;
+  percentageChange: number | null;
   currency: "INR" | "USD";
-  positive: boolean;
+  positive: boolean | null;
   marketStatus: MarketStatus;
   freshness: FreshnessState;
   source: DataSource;
@@ -32,19 +32,21 @@ type MarketTickerProps = {
   items: MarketTickerItemData[];
 };
 
-function formatValue(value: number, currency: MarketTickerItemData["currency"]) {
+function formatValue(value: number | null, currency: MarketTickerItemData["currency"]) {
+  if (value === null) return "Unavailable";
   return new Intl.NumberFormat("en-IN", {
     minimumFractionDigits: currency === "USD" ? 2 : 2,
     maximumFractionDigits: 2,
   }).format(value);
 }
 
-function formatChange(value: number) {
-  return `${value >= 0 ? "+" : ""}${value.toFixed(2)}`;
+function formatChange(value: number | null) {
+  return value === null ? "Unavailable" : `${value >= 0 ? "+" : ""}${value.toFixed(2)}`;
 }
 
 export function TickerItem({ item }: { item: MarketTickerItemData }) {
-  const movementClass = item.positive ? "text-emerald-300" : "text-red-300";
+  const movementClass =
+    item.positive === null ? "text-slate-500" : item.positive ? "text-emerald-300" : "text-red-300";
 
   return (
     <article className="flex min-w-[220px] gap-3 border-r border-slate-800/80 px-4 py-2 last:border-r-0 sm:min-w-[245px]">
@@ -60,7 +62,11 @@ export function TickerItem({ item }: { item: MarketTickerItemData }) {
             {formatValue(item.value, item.currency)}
           </span>
           <span className={`font-mono text-[11px] font-medium tabular-nums ${movementClass}`}>
-            {formatChange(item.absoluteChange)} ({formatChange(item.percentageChange)}%)
+            {formatChange(item.absoluteChange)} (
+            {item.percentageChange === null
+              ? "Unavailable"
+              : `${formatChange(item.percentageChange)}%`}
+            )
           </span>
         </div>
         <div className="mt-1.5 flex flex-wrap gap-1.5">

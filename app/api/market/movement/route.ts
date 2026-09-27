@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { authorizeApiRequest } from "@/src/server/auth/api-guard";
 import {
   getMarketMovementOverview,
   getSectorStocks,
@@ -8,6 +9,9 @@ import {
 export const runtime = "nodejs";
 
 export async function GET(request: Request) {
+  const authorization = await authorizeApiRequest();
+  if (!authorization.ok)
+    return NextResponse.json({ error: authorization.error }, { status: authorization.status });
   const { searchParams } = new URL(request.url);
   const sector = searchParams.get("sector")?.trim();
   const stock = searchParams.get("stock")?.trim();

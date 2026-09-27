@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { checkPublicApiRateLimit } from "@/src/server/auth/api-guard";
+
 import { verifyPassword } from "@/src/server/auth/password";
 import { createSession, setSessionCookie } from "@/src/server/auth/session";
 import { loginSchema } from "@/src/server/auth/validation";
@@ -8,6 +10,8 @@ import { getPrismaClient } from "@/src/server/db/prisma";
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
+  if (!(await checkPublicApiRateLimit("auth-login")))
+    return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   const body = await request.json().catch(() => null);
   const result = loginSchema.safeParse(body);
 

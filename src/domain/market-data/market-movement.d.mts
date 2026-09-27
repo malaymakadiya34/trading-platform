@@ -42,6 +42,11 @@ export function strengthDistribution<T extends { changePct: number | null }>(
   items: T[],
 ): { weak: T[]; neutral: T[]; strong: T[] };
 export function rankSectors<T extends { name: string; changePct: number | null }>(items: T[]): T[];
+export function indexPointContribution(
+  indexValue: number | null,
+  weightPct: number | null,
+  stockChangePct: number | null,
+): number | null;
 export function rankStocks<
   T extends { symbol: string; changePct: number | null; relativeStrength: number | null },
 >(items: T[]): T[];

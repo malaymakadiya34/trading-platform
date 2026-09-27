@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { authorizeApiRequest } from "@/src/server/auth/api-guard";
 import { getBtstScanner } from "@/src/server/scanners/btst-scanner-repository";
 import {
   getBreakoutScanner,
@@ -7,6 +8,9 @@ import {
 } from "@/src/server/scanners/intraday-scanner-repository";
 export const runtime = "nodejs";
 export async function GET(request: Request) {
+  const authorization = await authorizeApiRequest();
+  if (!authorization.ok)
+    return NextResponse.json({ error: authorization.error }, { status: authorization.status });
   const params = new URL(request.url).searchParams;
   const scanner = params.get("scanner");
   try {

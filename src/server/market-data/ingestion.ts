@@ -12,6 +12,7 @@ export const providerQuoteSchema = z
   .object({
     symbol: z.string().trim().min(1),
     exchange: z.string().trim().min(1),
+    instrumentIdentifier: z.string().trim().min(1).optional(),
     instrumentType: z.enum(["INDEX", "SECTOR", "STOCK", "FUTURE", "OPTION"]),
     timestamp: z.coerce.date(),
     price: finite.positive(),
@@ -19,16 +20,19 @@ export const providerQuoteSchema = z
     high: finite.optional(),
     low: finite.optional(),
     close: finite.optional(),
+    previousClose: finite.positive().optional(),
     volume: finite.nonnegative().optional(),
     openInterest: finite.nonnegative().optional(),
     openInterestChange: finite.optional(),
     strike: finite.positive().optional(),
     optionType: z.enum(["CE", "PE"]).optional(),
     expiry: z.coerce.date().optional(),
+    lotSize: z.number().int().positive().optional(),
     bid: finite.nonnegative().optional(),
     ask: finite.nonnegative().optional(),
     impliedVolatility: finite.nonnegative().optional(),
     source: z.string().trim().min(1),
+    marketStatus: z.enum(["PRE_MARKET", "OPEN", "CLOSED", "WEEKEND", "HOLIDAY"]).optional(),
     isDelayed: z.boolean().default(false),
   })
   .superRefine((value, ctx) => {
